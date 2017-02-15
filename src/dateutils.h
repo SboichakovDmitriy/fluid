@@ -15,13 +15,10 @@
 
 #pragma once
 
-#ifdef FLUID_LOCAL
-    #define FLUID_EXPORT
-#else
-    #include <Fluid/fluid/fluid_export.h>
-#endif
 #include <QtCore/QObject>
 #include <QtCore/QDateTime>
+
+#include <Fluid/fluidglobal.h>
 
 namespace Fluid {
 
