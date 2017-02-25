@@ -18,7 +18,7 @@
 #ifdef FLUID_LOCAL
     #define FLUID_EXPORT
 #else
-    #include <Fluid/fluid/fluid_export.h>
+    #include "fluidglobal.h"
 #endif
 #include <QtCore/QObject>
 #include <QtCore/QDateTime>
