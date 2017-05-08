@@ -21,15 +21,60 @@ Qt >= 5.8.0 with at least the following modules is required:
  * [qtgraphicaleffects](http://code.qt.io/cgit/qt/qtgraphicaleffects.git)
  * [qtsvg](http://code.qt.io/cgit/qt/qtsvg.git)
 
-## System-wide installation
+## Run the demo without installation
 
-First, if you want to include the Material Design icons used with the `Icon` component, run:
+Fluid provides a project that statically builds the demo program and doesn't require any
+installation.
+
+Open up `fluid-demo.pro` with QtCreator, hit build and run to see the demo in action.
+
+Alternatively you can build it yourself from the terminal:
 
 ```sh
-./scripts/fetch_icons.sh
+mkdir build; cd build
+qmake ../fluid-demo.pro
+make
 ```
 
-This will clone the Google repository holding the icons and copy the SVG icons into the `icons` directory.
+And run:
+
+```sh
+./fluid-demo
+```
+
+## System-wide installation
+
+### Build with QMake
+
+This will be the only build system in the next version, so you are encouraged
+to test it and report any issue.
+
+From the root of the repository, run:
+
+```sh
+mkdir build; cd build
+qmake ../fluid.pro
+make
+make install # use sudo if necessary
+```
+
+On the `qmake` line, you can specify additional configuration parameters:
+
+ * `LIRI_INSTALL_PREFIX=/path/to/install` (for example `/opt/liri` or `/usr`)
+ * `CONFIG+=debug` if you want a debug build
+ * `CONFIG+=install_under_qt` to install plugins and QML modules inside Qt
+
+Use `make distclean` from inside your `build` directory to clean up.
+You need to do this before rerunning `qmake` with different options.
+
+### Build with CMake
+
+If you decide to build with CMake you will need the following modules installed:
+
+ * [CMake >= 3.0](https://cmake.org/)
+ * [ECM >= 1.7.0](http://quickgit.kde.org/?p=extra-cmake-modules.git)
+
+This build system is now deprecated and will be removed in the next version.
 
 From the root of the repository, run:
 
@@ -48,15 +93,53 @@ On the `cmake` line, you can specify additional configuration parameters:
    * **Release:** release build
    * **RelWithDebInfo:** release build with debugging information
 
-## Per-project installation using QMake
+### Notes on installation
 
-First, clone this repository.
+A system-wide installation with `LIRI_INSTALL_PREFIX=/usr` is usually performed
+by Linux distro packages.
 
-Run the icon script located here:
+In order to avoid potential conflicts we recommend installing under `/opt/liri`,
+but this requires setting some environment variables up.
+
+First build and install:
 
 ```sh
-./scripts/fetch_icons.sh
+mkdir build; cd build
+qmake LIRI_INSTALL_PREFIX=/opt/liri ../fluid.pro
+make
+sudo make install
 ```
+
+Then create a file with the environment variables as `~/lenv` with the following contents:
+
+```sh
+LIRIDIR=/opt/liri
+
+export LD_LIBRARY_PATH=$LIRIDIR/lib:$LD_LIBRARY_PATH
+export XDG_DATA_DIRS=$LIRIDIR/share:/usr/local/share:/usr/share:~/.local/share:~/.local/share/flatpak/exports/share
+export XDG_CONFIG_DIRS=$LIRIDIR/etc/xdg:/etc/xdg
+export QT_PLUGIN_PATH=$LIRIDIR/lib/plugins
+export QML2_IMPORT_PATH=$LIRIDIR/lib/qml:$QML2_IMPORT_PATH
+export PATH=$LIRIDIR/bin:$PATH
+```
+
+Source the file (we are assuming a bash shell here):
+
+```sh
+source ~/lenv
+```
+
+And run `fluid-demo` to test:
+
+```sh
+fluid-demo
+```
+
+## Per-project installation using QMake
+
+You can embed Fluid in your project and build it along your app.
+
+First, clone this repository.
 
 In your project file, include the `fluid.pri` file:  
 ```qmake
@@ -82,6 +165,17 @@ engine.addImageProvider(QLatin1String("fluidicontheme"), new IconThemeImageProvi
 ```cpp
 engine.load(QUrl(QLatin1String("qrc:/main.qml")));
 ```
+
+## Documentation
+
+Build the HTML documentation from the `build` directory created earlied:
+
+```sh
+cd build
+make html_docs_fluid
+```
+
+Then open up `doc/fluid/html/index.html` with a browser.
 
 ## Licensing
 

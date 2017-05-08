@@ -11,7 +11,7 @@ set(CMAKE_AUTORCC ON)
 set(APPLE_SUPPRESS_X11_WARNING ON)
 
 # Set version
-set(PROJECT_VERSION "0.9.0")
+set(PROJECT_VERSION "0.10.0")
 set(PROJECT_VERSION_MAJOR 0)
 set(PROJECT_SOVERSION 0)
 
@@ -58,6 +58,9 @@ get_target_property(QMAKE_EXECUTABLE Qt5::qmake LOCATION)
 if(NOT QT_INSTALL_DOCS)
     exec_program(${QMAKE_EXECUTABLE} ARGS "-query QT_INSTALL_DOCS" RETURN_VALUE return_code OUTPUT_VARIABLE QT_INSTALL_DOCS)
 endif()
+if(NOT QT_HOST_DATA)
+    exec_program(${QMAKE_EXECUTABLE} ARGS "-query QT_HOST_DATA" RETURN_VALUE return_code OUTPUT_VARIABLE QT_HOST_DATA)
+endif()
 
 # Documentation target
 find_program(QDOC_EXECUTABLE qdoc-qt5 qdoc)
@@ -65,14 +68,8 @@ add_custom_target(docs
                   COMMAND QT_INSTALL_DOCS=${QT_INSTALL_DOCS} QT_VERSION_TAG=5.7 FLUID_VERSION=${PROJECT_VERSION} FLUID_VERSION_TAG=1.0 FLUID_BUILD_DIR=${CMAKE_CURRENT_BINARY_DIR} ${QDOC_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/doc/fluid.qdocconf)
 
 # Subdirectories
-add_subdirectory(controls)
-add_subdirectory(core)
-add_subdirectory(demo)
-add_subdirectory(effects)
-add_subdirectory(layouts)
 add_subdirectory(src)
 add_subdirectory(tests)
-add_subdirectory(material)
 
 # Install icons
 if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/icons")
@@ -80,6 +77,28 @@ if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/icons")
             DESTINATION ${QML_INSTALL_DIR}/Fluid/Controls
             PATTERN "icons/icons.qrc" EXCLUDE)
 endif()
+
+# Install qmake features
+# We do not install features anymore, just rely on submodules
+# to avoid a Fluid dependency on modules where it doesn't make sense
+#set(features_SOURCES
+#    features/liri_create_cmake.prf
+#    features/liri_deployment.prf
+#    features/liri_qml_module.prf
+#    features/liri_qml_plugin.prf
+#    features/liri_qt_app.prf
+#    features/liri_qt_module.prf
+#    features/liri_qt_module_pris.prf
+#    features/liri_qt_plugin.prf
+#)
+#install(FILES ${features_SOURCES} DESTINATION ${QT_HOST_DATA}/mkspecs/features)
+#set(features_cmake_SOURCES
+#    features/data/cmake/liri_ExtraSourceIncludes.cmake.in
+#    features/data/cmake/liri_Qt5BasicConfig.cmake.in
+#    features/data/cmake/liri_Qt5ConfigVersion.cmake.in
+#    features/data/cmake/liri_Qt5PluginTarget.cmake.in
+#)
+#install(FILES ${features_cmake_SOURCES} DESTINATION ${QT_HOST_DATA}/mkspecs/features/data/cmake)
 
 # Display feature summary
 feature_summary(WHAT ALL FATAL_ON_MISSING_REQUIRED_PACKAGES)
